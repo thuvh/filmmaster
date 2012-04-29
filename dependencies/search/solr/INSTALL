@@ -1,0 +1,8 @@
+wget http://apache.mirrors.tds.net/lucene/solr/1.4.1/apache-solr-1.4.1.tgz
+tar xvzf apache-solr-1.4.1.tgz
+ln solrconfig.xml SOLR_PATH/example/solr/conf
+// add pysolr.py to PYTHONPATH
+python manage.py build_solr_schema > SOLR_PATH/example/solr/conf/schema.xml
+python manage.py rebuild_index
+cd apache-solr-1.4.1/example
+java -jar start.jar

@@ -1,0 +1,249 @@
+diff --new-file -ur django.bak/core/management/commands/makemessages.py django/core/management/commands/makemessages.py
+--- django.bak/core/management/commands/makemessages.py	2011-10-25 15:03:21.000000000 +0200
++++ django/core/management/commands/makemessages.py	2011-06-07 18:11:25.000000000 +0200
+@@ -9,8 +9,8 @@
+ 
+ from django.core.management.base import CommandError, NoArgsCommand
+ from django.utils.text import get_text_list
++from django.utils.jslex import prepare_js_for_gettext
+ 
+-pythonize_re = re.compile(r'(?:^|\n)\s*//')
+ plural_forms_re = re.compile(r'^(?P<value>"Plural-Forms.+?\\n")\s*$', re.MULTILINE | re.DOTALL)
+ 
+ def handle_extensions(extensions=('html',)):
+@@ -184,15 +184,15 @@
+                 if verbosity > 1:
+                     sys.stdout.write('processing file %s in %s\n' % (file, dirpath))
+                 src = open(os.path.join(dirpath, file), "rU").read()
+-                src = pythonize_re.sub('\n#', src)
+-                thefile = '%s.py' % file
++                src = prepare_js_for_gettext(src)
++                thefile = '%s.c' % file
+                 f = open(os.path.join(dirpath, thefile), "w")
+                 try:
+                     f.write(src)
+                 finally:
+                     f.close()
+                 cmd = (
+-                    'xgettext -d %s -L Perl %s --keyword=gettext_noop '
++                    'xgettext -d %s -L C %s --keyword=gettext_noop '
+                     '--keyword=gettext_lazy --keyword=ngettext_lazy:1,2 '
+                     '--keyword=pgettext:1c,2 --keyword=npgettext:1c,2,3 '
+                     '--from-code UTF-8 --add-comments=Translators -o - "%s"' % (
+diff --new-file -ur django.bak/utils/jslex.py django/utils/jslex.py
+--- django.bak/utils/jslex.py	1970-01-01 01:00:00.000000000 +0100
++++ django/utils/jslex.py	2011-06-07 18:11:25.000000000 +0200
+@@ -0,0 +1,213 @@
++"""JsLex: a lexer for Javascript"""
++# Originally from https://bitbucket.org/ned/jslex
++import re
++
++class Tok(object):
++    """
++    A specification for a token class.
++    """
++    num = 0
++
++    def __init__(self, name, regex, next=None):
++        self.id = Tok.num
++        Tok.num += 1
++        self.name = name
++        self.regex = regex
++        self.next = next
++
++def literals(choices, prefix="", suffix=""):
++    """
++    Create a regex from a space-separated list of literal `choices`.
++
++    If provided, `prefix` and `suffix` will be attached to each choice
++    individually.
++
++    """
++    return "|".join(prefix+re.escape(c)+suffix for c in choices.split())
++
++
++class Lexer(object):
++    """
++    A generic multi-state regex-based lexer.
++    """
++
++    def __init__(self, states, first):
++        self.regexes = {}
++        self.toks = {}
++
++        for state, rules in states.items():
++            parts = []
++            for tok in rules:
++                groupid = "t%d" % tok.id
++                self.toks[groupid] = tok
++                parts.append("(?P<%s>%s)" % (groupid, tok.regex))
++            self.regexes[state] = re.compile("|".join(parts), re.MULTILINE|re.VERBOSE)
++
++        self.state = first
++
++    def lex(self, text):
++        """
++        Lexically analyze `text`.
++
++        Yields pairs (`name`, `tokentext`).
++        """
++        while text:
++            eaten = 0
++            for match in self.regexes[self.state].finditer(text):
++                for name, toktext in match.groupdict().iteritems():
++                    if toktext is not None:
++                        tok = self.toks[name]
++                        new_state = tok.next
++                        eaten += len(toktext)
++                        yield (tok.name, toktext)
++                if new_state:
++                    self.state = new_state
++                    break
++            text = text[eaten:]
++
++
++class JsLexer(Lexer):
++    """
++    A Javascript lexer
++
++    >>> lexer = JsLexer()
++    >>> list(lexer.lex("a = 1"))
++    [('id', 'a'), ('ws', ' '), ('punct', '='), ('ws', ' '), ('dnum', '1')]
++
++    This doesn't properly handle non-Ascii characters in the Javascript source.
++    """
++
++    # Because these tokens are matched as alternatives in a regex, longer
++    # possibilities must appear in the list before shorter ones, for example,
++    # '>>' before '>'.
++    #
++    # Note that we don't have to detect malformed Javascript, only properly
++    # lex correct Javascript, so much of this is simplified.
++
++    # Details of Javascript lexical structure are taken from
++    # http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf
++
++    # A useful explanation of automatic semicolon insertion is at
++    # http://inimino.org/~inimino/blog/javascript_semicolons
++
++    both_before = [
++        Tok("comment",      r"/\*(.|\n)*?\*/"),
++        Tok("linecomment",  r"//.*?$"),
++        Tok("ws",           r"\s+"),
++        Tok("keyword",      literals("""
++                                break case catch class const continue debugger
++                                default delete do else enum export extends
++                                finally for function if import in instanceof
++                                new return super switch this throw try typeof
++                                var void while with
++                                """, suffix=r"\b"), next='reg'),
++        Tok("reserved",     literals("null true false", suffix=r"\b"), next='div'),
++        Tok("id",           r"""
++                            ([a-zA-Z_$   ]|\\u[0-9a-fA-Z]{4})   # first char
++                            ([a-zA-Z_$0-9]|\\u[0-9a-fA-F]{4})*  # rest chars
++                            """, next='div'),
++        Tok("hnum",         r"0[xX][0-9a-fA-F]+", next='div'),
++        Tok("onum",         r"0[0-7]+"),
++        Tok("dnum",         r"""
++                            (   (0|[1-9][0-9]*)     # DecimalIntegerLiteral
++                                \.                  # dot
++                                [0-9]*              # DecimalDigits-opt
++                                ([eE][-+]?[0-9]+)?  # ExponentPart-opt
++                            |
++                                \.                  # dot
++                                [0-9]+              # DecimalDigits
++                                ([eE][-+]?[0-9]+)?  # ExponentPart-opt
++                            |
++                                (0|[1-9][0-9]*)     # DecimalIntegerLiteral
++                                ([eE][-+]?[0-9]+)?  # ExponentPart-opt
++                            )
++                            """, next='div'),
++        Tok("punct",        literals("""
++                                >>>= === !== >>> <<= >>= <= >= == != << >> &&
++                                || += -= *= %= &= |= ^=
++                                """), next="reg"),
++        Tok("punct",        literals("++ -- ) ]"), next='div'),
++        Tok("punct",        literals("{ } ( [ . ; , < > + - * % & | ^ ! ~ ? : ="), next='reg'),
++        Tok("string",       r'"([^"\\]|(\\(.|\n)))*?"', next='div'),
++        Tok("string",       r"'([^'\\]|(\\(.|\n)))*?'", next='div'),
++        ]
++
++    both_after = [
++        Tok("other",        r"."),
++    ]
++
++    states = {
++        'div': # slash will mean division
++            both_before + [
++            Tok("punct", literals("/= /"), next='reg'),
++            ] + both_after,
++
++        'reg':  # slash will mean regex
++            both_before + [
++            Tok("regex",
++                r"""
++                    /                       # opening slash
++                    # First character is..
++                    (   [^*\\/[]            # anything but * \ / or [
++                    |   \\.                 # or an escape sequence
++                    |   \[                  # or a class, which has
++                            (   [^\]\\]     #   anything but \ or ]
++                            |   \\.         #   or an escape sequence
++                            )*              #   many times
++                        \]
++                    )
++                    # Following characters are same, except for excluding a star
++                    (   [^\\/[]             # anything but \ / or [
++                    |   \\.                 # or an escape sequence
++                    |   \[                  # or a class, which has
++                            (   [^\]\\]     #   anything but \ or ]
++                            |   \\.         #   or an escape sequence
++                            )*              #   many times
++                        \]
++                    )*                      # many times
++                    /                       # closing slash
++                    [a-zA-Z0-9]*            # trailing flags
++                """, next='div'),
++            ] + both_after,
++        }
++
++    def __init__(self):
++        super(JsLexer, self).__init__(self.states, 'reg')
++
++
++def prepare_js_for_gettext(js):
++    """
++    Convert the Javascript source `js` into something resembling C for
++    xgettext.
++
++    What actually happens is that all the regex literals are replaced with
++    "REGEX".
++    """
++    def escape_quotes(m):
++        """Used in a regex to properly escape double quotes."""
++        s = m.group(0)
++        if s == '"':
++            return r'\"'
++        else:
++            return s
++
++    lexer = JsLexer()
++    c = []
++    for name, tok in lexer.lex(js):
++        if name == 'regex':
++            # C doesn't grok regexes, and they aren't needed for gettext,
++            # so just output a string instead.
++            tok = '"REGEX"';
++        elif name == 'string':
++            # C doesn't have single-quoted strings, so make all strings
++            # double-quoted.
++            if tok.startswith("'"):
++                guts = re.sub(r"\\.|.", escape_quotes, tok[1:-1])
++                tok = '"' + guts + '"'
++        elif name == 'id':
++            # C can't deal with Unicode escapes in identifiers.  We don't
++            # need them for gettext anyway, so replace them with something
++            # innocuous
++            tok = tok.replace("\\", "U");
++        c.append(tok)
++    return ''.join(c)

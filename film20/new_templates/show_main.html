@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load widgets %}
+{% load movie %}
+{% load fragments %}
+
+{% block title %}{% trans "Discover new movies!" %}{% endblock %}
+
+{% block body-class %} class="home"{% endblock %}
+
+{% block primary-content-wrapper-start %}{%endblock%}
+
+{% block content %}
+    <article class="join-us">
+    {% if request.user.is_authenticated %}
+            <h1>{% trans "Your movie recommendations for tonight:" %}</h1>
+    {% else %}
+            <h1>{% trans "Why should I join Filmaster?" %}</h1>
+            <div id="teaser" class="teaser">
+                <div class="rate-movies active">
+                    <section class="description">
+                        <h1>{% trans "Rate movies" %}</h1>
+                        <p>{% trans "Rate 15 movies and learn which other movies you should watch" %}</p>
+                        <p class="join"><a href="{% url account.views.signup %}">{% trans "Join Filmaster" %}</a></p>
+                    </section><!-- .description -->
+                    {# TODO: create here special fake rating widget #}
+                     {% random_top_movie %}
+                </div><!-- .rate-movies -->
+                <div>
+                    {% include "home/teaser_friends_ratings.html" %}
+                </div>
+                <div>
+                    {% include "home/teaser_friends_movies.html" %}
+                </div>
+                <div>
+                    {% include "home/teaser_mobile.html" %}
+                </div>
+            </div><!-- #teaser .teaser -->
+
+    {% endif %}
+
+    {% top_on_main_page %}
+
+    {% if not request.user.is_authenticated %}
+
+		{% include 'home/references.html' %}
+		<p class="join"><a href="{% url account.views.signup %}">{% trans "Join Filmaster" %}</a></p>
+
+    {% endif %}
+	</article><!-- .join-us -->
+{% endblock content %}
+
+{% block primary-content-wrapper-end %}{%endblock%}
+
+{% block secondary-content-aside %}
+	<aside class="filmaster">
+        {% if not request.user.is_authenticated %}
+	        <a href="#" class="fb-button">{% trans "Connect with Facebook" %}</a>
+        {% endif %}
+        <section id="_location_err" style="display:none">
+	        <p class="msg"></p>
+		{% blocktrans %}
+			You have denied access to your location. <a href="#">How to enable</a>.
+		{% endblocktrans %}
+        </section>
+	<section id="location_hint" style="display:none">
+		{% blocktrans %}
+			<a href="#" class="enable">Share your location</a> - this will help us provide you movie recommendations relevant to where you are.
+		{% endblocktrans %}
+	</section>
+    	{% fragment filmaster-recommends %}
+        <section class="stream">
+            <h1>{% trans "Recently on Filmaster" %}</h1>
+            {% main_page_activity_list %}
+        </section><!-- .stream -->
+	</aside>
+{% endblock %}
+
+{% block end-scripts %}
+<script>
+	FM.ratatingTeaser({
+		selector: "#teaser",
+		delay_sec: 8
+	});
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "movies/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Recommendations" %}{% endblock %}
+
+{% block primary-content-aside %}
+	{% include 'aside/movies/recommendations.html' %}
+{% endblock primary-content-aside %}
+
+{% block content %}
+	<section class="movie-list">
+	<h1>{% trans "Recommendations" %}</h1>
+        {% include "movies/filters/movies_filter.html" %}
+        {% if not films %}
+            {% if not default_filter %}
+                <div class="no-items">
+                    {% trans "Unfortunately we couldn't find any results matching your selection." %}<br/>
+                    {% trans "Try removing some filters." %}
+                </div>
+            {% endif %}
+        {# everything fine, show the list of recommendations #}
+        {% else %}
+            {% if not recom_status %}
+                {# no recommendations, yet: show compute form #}
+                <div class="no-items">
+                    <h2>
+                    {% trans "We don't have any recommendations, yet. Please " %}
+                    <a href="{% url rate_films %}"> {% trans "rate at least 15 movies " %}</a>
+                    {% trans "and wait a few minutes until we compute them." %}
+                    </h2>
+                </div>
+                <p>{% trans "While we don't have your recommendations list, you can check out the best rated movies on Filmaster. " %}</p>
+            {% endif %}
+            {% if recom_status %}
+                <p>{% trans "These are the films that we recommend you based on your previous ratings. " %}</p>
+            {% endif %}
+            <ul class="collection{% if user.is_authenticated %} rate-movies-simple{% endif %}">
+                {% for film in films|slice:":24" %}
+                <li>
+                    {% include 'movies/rating/single_film_simple.html' %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+	</section><!-- .movie-list -->
+    {% include "pagination/pagination.html" %}
+{% endblock content %}

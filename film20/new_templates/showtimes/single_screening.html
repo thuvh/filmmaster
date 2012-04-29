@@ -1,0 +1,46 @@
+{%extends "base.html"%}
+{%load i18n%}
+{%load showtimes%}
+{%block content%}
+<div id="content-section-showtimes">
+{%if request.GET.next%}
+<div>
+<a href="{{request.GET.next}}">{%trans "back"%}</a>
+</div>
+{%endif%}
+{%with screening.channel as channel%}
+<h2 class="cinema_name">
+  <a href="{%channelurl channel%}">
+    {{channel.name}}
+  </a>
+</h2>
+{%if channel.cinema%}
+<p class="cinema_address">
+{{channel.cinema.address}}
+</p>
+{%endif%}
+{%endwith%}
+{%with film=screening.film.get_film %}
+	{% include "showtimes/film.html" %}
+{%endwith%}
+<div class="screening_time">{{screening.date}} {{screening|local_time_html:request.timezone}}</div>
+{%if user.is_authenticated %}
+<form method="post">
+  {%if not checked_in%}
+    <input type="submit" name="checkin" value="{%trans 'Check-In'%}" />
+  {%else%}
+    <input type="submit" name="checkin-cancel" value="{%trans 'Cancel Check-In'%}" />
+  {%endif%}
+</form>
+{% endif %}
+<div id="checked-in">
+{%for s in checkins%}
+  {%with s.user as current_user%}
+    <li>{{user}}</li>
+  {%endwith%}
+{%empty%}
+  {%trans "No one has checked-in yet, be first!"%}
+{%endfor%}
+</div>
+</div>
+{%endblock%}

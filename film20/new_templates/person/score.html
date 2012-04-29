@@ -1,0 +1,13 @@
+{%load i18n%}
+
+{%if average%}
+	<section class="person-rating">
+	<h1>{{title}}</h1>
+    <p class="avg">
+        {%trans "Average rating"%}: 
+        {{average|floatformat:'2'}}
+        <span class="rating-2-avg r{{average|floatformat:'0'}}">
+        </span>
+    </p>
+    </section>
+{%endif%}

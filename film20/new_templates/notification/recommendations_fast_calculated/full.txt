@@ -1,0 +1,4 @@
+{% load i18n %}
+{% url my_recommendations as recommendations_url %}
+{% blocktrans %}Congratulations! Movie recommendations have been calculated for you based on your ratings.
+This is the first version of the recommendations. Fully personalized movie suggestions will be generated for you in less than a day. It takes time as computing them is complex and non-trivial task. You will get notified when they are ready and for now please take a look at those quick suggestions that we got for you: {{recommendations_url}}{% endblocktrans %}

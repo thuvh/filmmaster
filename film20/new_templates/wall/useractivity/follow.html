@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load map_url %}
+{% load useractivity_tags %}
+{% load format_date %}
+{% load threadedcommentstags %}
+{% load sanitize %}
+{% load truncatechars %}
+{% load followers %}
+
+{% block content %}
+<section id="activity-{{ activity.pk }}">
+	<header>
+		<p>
+			<a href="{% url_username_link activity.username %}">{{ activity.username }}
+			<img width="45" height="45" src="{% avatars 45 activity.username %}" alt="{{ activity.username }}" /></a>
+			{% trans "started following a user" %}
+		</p>
+	</header>
+	<p>
+		{% follow_html activity.content %}
+	</p>
+	<footer>
+		<p><time class="timeago" datetime="{{ activity.created_at|date:"c" }}">{% human_readable_date activity.created_at %}</time>.</p>
+	</footer>
+</section>
+{% endblock content %}

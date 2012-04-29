@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load map_url %}
+{% load show_film_tags %}
+{% load object %}
+{% load movie %}
+{% load posters %}
+
+<figure>
+	<a href="{% url show_film film.permalink %}">
+		<img width="100" height="150" class="film-cover" src="{% poster 100 150 film %}" alt="" />
+		<figcaption>{{film.get_title}}</figcaption>
+	</a>
+</figure>

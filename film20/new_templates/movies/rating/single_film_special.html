@@ -1,0 +1,14 @@
+{% load map_url %}
+{% load account %}
+{% load debug %}
+{% load movie %}
+{% if film %}
+
+<section class="rate-movie">
+	{% block form %}
+		{% with mark_as_seen=mark_as_seen %}
+			{% film_ratings_form_special film user mark_as_seen %}
+		{% endwith %}
+	{% endblock %}
+</section><!-- .rate-movie -->
+{% endif %}

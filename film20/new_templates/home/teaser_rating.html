@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load useractivity_tags %}
+{% load map_url %}
+{% load format_date %}
+{% load movie %}
+
+<a href="{% url_username_link activity.username %}">{{ activity.username }}<img src="{% avatars 45 activity.username %}" alt="{{ activity.username }}" /></a>
+{% trans "rated" %} <a href="{% url show_film activity.film_permalink %}">{{ activity.film_title }}</a>
+<meter class="rating-2" max="10" value="{{ activity.rating }}">{{ activity.rating }} {% trans "stars" %}</meter>
+<span> {% human_readable_date activity.created_at %} </span> 

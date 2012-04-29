@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{# genre #}
+{% if genre %}
+    {% if genre_ranking_str %}
+        {{ genre_ranking_str }}
+    {% else %}
+        {% trans "Best movies" %}: {{ genre }}
+    {% endif %} 
+{% else %}
+    {% trans "Best movies" %}{% if fake_film_specs_form.tags %}: {{ fake_film_specs_form.tags }}{% endif %}
+{% endif %}

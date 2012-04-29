@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load map_url %}
+{% load object %}
+{% load person %}
+{% load posters %}
+{% load smartlinebreaks %}
+{% load i18n %}
+{% block title %}{{ person.name|safe }} {{ person.surname|safe }} &laquo; {% trans "Person" %} {% endblock %}
+
+{%block content%}
+
+<article class="person">
+    <h1 id="person_name">{{ person.localized_name|safe }} {{ person.localized_surname|safe }}
+    {% if user.is_authenticated %}
+        <a id="edit_title" class="edit" href="#">✎</a>
+    {% endif %}
+    </h1>
+    {% if person.year_of_birth %}
+    <dl>
+        <dt>{% trans "Date of birth" %}</dt>
+        <dd>{{ the_person.year_of_birth }}</dd>
+    </dl>
+    {% endif %}
+
+    {%object_tags person%}
+
+    {% if user.is_authenticated %}
+    <div class="biography">
+        {{ person.biography|safe|smartlinebreaks }}
+
+        <a id="edit_biography" class="edit" href="#">
+            {% if person.biography %}
+                {% trans "Edit Biography" %}
+            {% else %}
+                {% trans "Add Biography" %}
+            {% endif %}
+        </a>
+    </div>
+    {% endif %}
+
+    {%person_films_directed person%}<!-- TODO: generate all -->
+
+    {%person_films_played person%}<!-- TODO: generate all -->
+
+</article><!-- .person -->
+
+{%include "person/wall.html"%}
+
+{%endblock%}
+
+{% block primary-content-aside %}
+    {% include 'aside/person.html' %}
+{% endblock primary-content-aside %}
+
+{% block secondary-content-aside %}
+    <aside class="filmaster">
+        {% actor_score person %}
+        {% director_score person %}
+    </aside><!-- .filmaster -->
+{% endblock secondary-content-aside %}
+
+{% block end-scripts %}
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/person.js"></script>
+<script>
+    FM.showMoreList({
+        selector: "#films_directed",
+        msg: "{% trans 'show all movies' %}"
+    });
+
+    FM.showMoreList({
+        selector: "#films_played",
+        msg: "{% trans 'show all movies' %}"
+    });
+
+    $( "#add_photo" ).addPhoto();
+</script>
+{% endblock %}

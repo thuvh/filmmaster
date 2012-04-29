@@ -1,0 +1,11 @@
+{%load account%}
+{%with "offline_access,publish_stream,create_event,email" as perms%}
+{%if request.is_mobile and request.is_oauth%}
+<a class="fb-button" href="{%url fb_begin%}?{%get_next request%}"><img src="/static/img/sign-up-facebook.png" alt="Facebook login" /></a>
+{%else%}
+<!-- <fb:login-button autologoutlink="false" perms="{{perms}}"></fb:login-button>
+-->
+<a class="fb-button" href="#">Facebook</a>
+{%endif%}
+
+{%endwith%}

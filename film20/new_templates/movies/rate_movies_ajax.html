@@ -1,0 +1,7 @@
+<ul class="rate-movies-simple">
+	{% for film in films %}
+		<li>
+			{% include "movies/rating/single_film_special.html" %}
+		</li>
+	{% endfor %}
+</ul>

@@ -1,0 +1,3 @@
+{% load i18n %}
+{% blocktrans %}Your movie ratings have been imported.{% endblocktrans %} {% blocktrans %}Check them here: {{link_to_ratings}}{% endblocktrans %}
+{% blocktrans %}You can also check your import status here: {{link_to_summary}}{% endblocktrans %}

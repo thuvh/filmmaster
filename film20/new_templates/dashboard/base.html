@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load planet_tags %}
+{% load filmaster_recommends %}
+{% load regional_info %}
+{% load widgets %}
+{% load map_url %}
+{% load movie %}
+{% load showtimes %}
+{% load similar_users %}
+{% load fragments %}
+
+{% block title %}{% trans "Dashboard" %}{% endblock %}
+{% block body-class %} class="dashboard"{% endblock %}
+{% block content %}
+	{% include "dashboard/wall.html" %}
+{% endblock content %}
+
+{% block primary-content-aside %}
+	{% include 'aside/dashboard.html' %}
+{% endblock primary-content-aside %}
+
+{% block secondary-content-aside %}
+	<aside class="filmaster">
+    	{% fragment filmaster-dashboard %}
+		{% filmaster_recommends %}
+        {% regional_info %}
+        {% top_personalized_recommendations %}
+        {# similar_users request.user #}
+		{% block films_rating %}
+            {% random_film_to_rate %}
+        {% endblock films_rating %}
+    </aside>
+{% endblock %}
+
+{% block end-scripts %}
+	<script>
+        FM.trailers();
+	</script>
+{% endblock %}

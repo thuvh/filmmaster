@@ -1,0 +1,20 @@
+{%load i18n%}
+{% load map_url %}
+
+{%if ratings%}
+	<p>{{title}}:</p>
+	<ul>
+	{%for rating in ratings%}
+		<li>
+			<a href="{% url_username_link rating.user%}">{{rating.user}}</a>
+			{% if rating.rating %}
+				<meter class="rating-3" max="10" value="{{rating.rating}}">{{rating.rating}} {% trans "stars" %}</meter>
+			{% endif %}
+		</li>
+	  {%endfor%}
+	</ul>
+{% else %}
+    {% if friends %}<p>{% trans "None of your friends have rated this film, yet. Be the first one!" %}</p>{% endif %}
+{%endif%}
+
+

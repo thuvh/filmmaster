@@ -1,0 +1,14 @@
+{% load map_url %}
+{% load show_film_tags %}
+{% load i18n %}
+<section class="crew">
+	<h2>{% trans "Cast" %}:</h2>
+	<ul id="crew">
+	{% for actor in actors%}
+		<li>{% url_person actor.person %}{% if actor.character %} {% trans "as" %} {{ actor.character }}{% endif %}{% if not forloop.last or actors_extra %}, {%endif%}</li>
+	{% endfor %}
+	</ul><!-- #crew -->
+	{% if perms.add_films.can_edit_film_cast %}
+        <a class="edit" href="{% url edit-film-cast film.permalink %}">{% trans "Edit cast" %}</a>
+	{% endif %}
+</section><!-- .crew -->

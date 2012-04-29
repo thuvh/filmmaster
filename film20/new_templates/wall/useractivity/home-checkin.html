@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load map_url %}
+{% load useractivity_tags %}
+{% load format_date %}
+{% load threadedcommentstags %}
+{% load sanitize %}
+{% load truncatechars %}
+{% load showtimes %}
+<li>
+    <p>
+        <a href="{% url_username_link activity.username %}">{{ activity.username }}
+        <img width="45" height="45" src="{% avatars 45 activity.username %}" alt="{{ activity.username }}" /></a>
+        {% trans "checked-in on" %} <a href="{% url show_film activity.film_permalink %}">{{ activity.film_title|safe }}</a>
+        {% if activity.channel_name %}
+            {% trans "in" %} {{ activity.channel_name }}
+		{% endif %}
+	</p>
+</li>

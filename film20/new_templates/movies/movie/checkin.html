@@ -1,0 +1,11 @@
+{% load movie %}
+{% load i18n %}
+<section class="checkin">
+    <h1>{% trans "Movie Check-In" %}</h1>
+    {% if checkin %}
+    <button class="btn" rel="/1.1/checkin/{{checkin.id}}/"></button>
+    {% else %}
+    <button class="btn"></button>
+    {% endif %} 
+</section>
+

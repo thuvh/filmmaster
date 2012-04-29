@@ -1,0 +1,19 @@
+{% extends "wall/useractivity/base.html" %}
+{% load i18n %}
+{% load movie %}
+{% load person %}
+{% load map_url %}
+{% load format_date %}
+{% load useractivity_tags %}
+
+{% block activity-header %}
+    {% if activity.film_permalink %}
+        {% trans "added a movie poster" %} <a href="{% url show_film activity.film_permalink %}">{{ activity.film_title }}</a>
+    {% else %}
+        {% trans "added a person photo" %} <a href="{% url show_person activity.object_slug %}">{{ activity.object_title }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block activity-content %}
+    <img height="70" src="{{ MEDIA_URL }}{{ activity.content }}" alt="[]"/>
+{% endblock %}

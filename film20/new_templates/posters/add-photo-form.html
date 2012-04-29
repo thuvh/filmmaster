@@ -1,0 +1,14 @@
+{% load upload_tags %}
+
+<div id="main" class="upload-photo">
+{% upload_image_form 'add_person_photo' %}
+
+<form id="form__add_person_photo" action="{{ url }}" method="POST" accept-charset="utf-8" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" id="id_uploaded_image" name="uploaded_image" />
+    <div class="buttons">
+        <input type="submit" value="Zapisz" />
+        <span> lub <a href="#cancel">Anuluj</a></span>
+    </div>
+</form>
+</div>

@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% if left %}
+	<p><progress value="{{percent}}" max="100">{{percent}}%</progress>
+		<span class="progress"><span id="rate-movie-progress" style="width: {{percent}}%;"></span></span>
+	</p>
+	<p id="progress-info">
+		{% blocktrans count count as count %}
+			You have rated <strong id="movies-rated">{{count}}</strong> movie.
+			{% plural %}
+			You have rated <strong id="movies-rated">{{count}}</strong> movies.
+		{% endblocktrans %}
+		{% blocktrans count left as left %}
+			Rate <strong id="movies-to-rate">{{left}}</strong> more to get personalized recommendations.
+			{% plural %}
+			Rate <strong id="movies-to-rate">{{left}}</strong> more to get personalized recommendations.
+		{% endblocktrans %}
+	</p>
+{% endif %}

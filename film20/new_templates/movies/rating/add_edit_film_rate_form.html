@@ -1,0 +1,27 @@
+{% load i18n %}
+{% load map_url %}
+{% if request.user.is_authenticated %}
+<form method="POST" action="{% url process_ratings %}">
+	<fieldset>
+		<span class="ajax-loader"></span>
+		<p class="msg"></p>
+		<p class="r ratings-in-movie">
+			{% if form.rating_1.value %}
+			    {% trans "Change your rating" %}:
+            {% else %}
+			    {% trans "If you saw the movie, rate it" %}:
+			{% endif %}
+			{{form.rating_1.errors}} {# Film #}
+			<label for="{{form.rating_1.id_for_label}}">{{form.rating_1.label}}</label>
+			{{form.rating_1}}
+			 <span class="rating-1 r{{ form.rating_1.value }}"></span>
+			{% if form.rating_1.value %}
+				<span title="{% trans "Remove your rating" %}" class="x"></span>
+			{% endif %}
+		</p>
+	</fieldset>
+	<input class="user-profile" type="hidden" value="{%  url_user_link request.user %}" />
+	{% csrf_token %}
+	<input type="submit" value="{% trans "Submit" %}" />
+</form>
+{% endif %}

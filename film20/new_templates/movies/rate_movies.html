@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load movie %}
+{% load utils %}
+
+{% block body-class %} class="rate-movies-page"{% endblock %}
+{% block primary-content-wrapper-start %}{% endblock %}
+{% block content %}
+<section>
+	<section id="rate-movies-progress" class="rate-movies-progress">
+		<h1>{% trans "Rate movies" %}</h1>
+		{% rating_progress user %}
+	</section>
+	<p class="rate-movies-more">
+		<a href="." class="button">{% trans "Show other movies" %}</a>
+		<span class="ajax-loader"></span>
+	</p>
+	{% if films %}
+		{% include "movies/rate_movies_ajax.html" %}
+	{% else %}
+		{% if tag %}
+			{% blocktrans %}
+			<p>You have seen all suggested movies for <strong>{{tag}}</strong>.</p>
+			{% endblocktrans %}
+		{% else %}
+			{% blocktrans %}
+			<p>You have seen all suggested movies.</p>
+			{% endblocktrans %}
+		{% endif %}
+	{% endif %}
+	<p class="rate-movies-more">
+		<a href="." class="button">{% trans "Show other movies" %}</a>
+		<span class="ajax-loader"></span>
+	</p>
+</section>
+{% endblock %}
+{% block primary-content-wrapper-end %}{% endblock %}
+
+{% block primary-content-aside %}
+	{% include "aside/movies/rate_movies.html" %}
+{% endblock %}

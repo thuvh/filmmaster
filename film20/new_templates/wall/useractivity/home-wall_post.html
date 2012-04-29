@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load map_url %}
+{% load useractivity_tags %}
+{% load format_date %}
+{% load threadedcommentstags %}
+{% load sanitize %}
+{% load truncatechars %}
+
+<li>
+	<a href="{% url_username_link activity.username %}">{{ activity.username }}<img width="45" height="45" src="{% avatars 45 activity.username %}" alt="{{ activity.username }}" /></a>
+	{% trans "published a wall post" %}
+	<p>
+		{{ activity.content|remove_spoiler|striptags|truncatechars:200}}
+        <a href="{% url show_wall_post activity.username activity.short_review_id %}">{% trans "read more" %}</a>
+	</p>
+    <p>
+        {% human_readable_date activity.created_at %}.
+    </p>
+</li>

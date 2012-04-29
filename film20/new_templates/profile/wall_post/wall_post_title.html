@@ -1,0 +1,2 @@
+{% load i18n %}
+{% if activity.get_title %}{{ activity.get_title }}{% else %}{% trans "Wall post by " %} {{ activity.username }}{% endif %}
